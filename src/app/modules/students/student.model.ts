@@ -36,13 +36,25 @@ const studentSchema = new Schema<TStudent, StudentModel_S>(
     password: { type: String },
     name: userNameSchema,
     email: { type: String, required: true },
-    gender: ['male', 'female'],
+    gender: {
+      type: String,
+      enum: {
+        values: ['male', 'female'],
+        message: '{VALUE} is not a valid gender',
+      },
+    },
     dateOfBirth: { type: String },
     contactNo: { type: String, required: true },
     emergencyContactNo: { type: String, required: true },
     presentAddress: { type: String, required: true },
     permanentAddress: { type: String, required: true },
-    bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    bloodGroup: {
+      type: String,
+      enum: {
+        values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+        message: '{VALUE} is not valid blood group',
+      },
+    },
     guardian: guardianSchema,
     localGuardian: localGuardianSchema,
     profileImage: { type: String },
