@@ -1,9 +1,11 @@
+import { Request, Response } from 'express'
 import { UserServices } from './user.services'
+import studentValidationSchema from '../students/student.validation';
 
 const createStudent = async (req: Request, res: Response) => {
   try {
     const { password, student: studentData } = req.body
-    //   const zodParsedData = studentValidationSchema.parse(studentData);
+      // const zodParsedData = studentValidationSchema.parse(studentData);
 
     const result = await UserServices.createStudentIntoDB(password, studentData)
 
@@ -13,6 +15,7 @@ const createStudent = async (req: Request, res: Response) => {
       data: result,
     })
   } catch (err: any) {
+    console.log(err)
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',

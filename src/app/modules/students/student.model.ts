@@ -1,13 +1,13 @@
-import bcrypt from 'bcrypt';
-import { Schema, model } from 'mongoose';
-import config from '../../config';
+import bcrypt from 'bcrypt'
+import { Schema, model } from 'mongoose'
+import config from '../../config'
 import {
   StudentModel,
   TGuardian,
   TLocalGuardian,
   TStudent,
   TUserName,
-} from './student.interface';
+} from './student.interface'
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -26,7 +26,7 @@ const userNameSchema = new Schema<TUserName>({
     required: [true, 'Last Name is required'],
     maxlength: [20, 'Name can not be more than 20 characters'],
   },
-});
+})
 
 const guardianSchema = new Schema<TGuardian>({
   fatherName: {
@@ -55,9 +55,9 @@ const guardianSchema = new Schema<TGuardian>({
     type: String,
     required: [true, 'Mother Contact No is required'],
   },
-});
+})
 
-const localGuardianSchema = new Schema<TLocalGuardian>({
+const localGuradianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -74,11 +74,17 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
     type: String,
     required: [true, 'Address is required'],
   },
-});
+})
 
 const studentSchema = new Schema<TStudent, StudentModel>(
   {
     id: { type: String, required: [true, 'ID is required'], unique: true },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User ID is required'],
+      unique: true,
+      ref: 'User',
+    },
     password: {
       type: String,
       required: [true, 'Password is required'],
@@ -107,7 +113,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: String,
       required: [true, 'Emergency contact number is required'],
     },
-    bloodGroup: {
+    bloogGroup: {
       type: String,
       enum: {
         values: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
@@ -127,18 +133,18 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Guardian information is required'],
     },
     localGuardian: {
-      type: localGuardianSchema,
+      type: localGuradianSchema,
       required: [true, 'Local guardian information is required'],
     },
     profileImg: { type: String },
-    isActive: {
-      type: String,
-      enum: {
-        values: ['active', 'blocked'],
-        message: '{VALUE} is not a valid status',
-      },
-      default: 'active',
-    },
+    // isActive: {
+    //   type: String,
+    //   enum: {
+    //     values: ['active', 'blocked'],
+    //     message: '{VALUE} is not a valid status',
+    //   },
+    //   default: 'active',
+    // },
     isDeleted: {
       type: Boolean,
       default: false,
@@ -149,55 +155,54 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       virtuals: true,
     },
   },
-);
-
+)
 // virtual
 studentSchema.virtual('fullName').get(function () {
-  return this.name.firstName + this.name.middleName + this.name.lastName;
-});
+  return this.name.firstName + this.name.middleName + this.name.lastName
+})
 
 // pre save middleware/ hook : will work on create()  save()
 studentSchema.pre('save', async function (next) {
   // console.log(this, 'pre hook : we will save  data');
   // eslint-disable-next-line @typescript-eslint/no-this-alias
-  const user = this; // doc
+  const user = this // doc
   // hashing password and save into DB
   user.password = await bcrypt.hash(
     user.password,
     Number(config.bcrypt_salt_rounds),
-  );
-  next();
-});
+  )
+  next()
+})
 
 // post save middleware / hook
 studentSchema.post('save', function (doc, next) {
-  doc.password = '';
-  next();
-});
+  doc.password = ''
+  next()
+})
 
 // Query Middleware
 studentSchema.pre('find', function (next) {
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
+  this.find({ isDeleted: { $ne: true } })
+  next()
+})
 
 studentSchema.pre('findOne', function (next) {
-  this.find({ isDeleted: { $ne: true } });
-  next();
-});
+  this.find({ isDeleted: { $ne: true } })
+  next()
+})
 
 // [ {$match: { isDeleted : {  $ne: : true}}}   ,{ '$match': { id: '123456' } } ]
 
 studentSchema.pre('aggregate', function (next) {
-  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
-  next();
-});
+  this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } })
+  next()
+})
 
 //creating a custom static method
 studentSchema.statics.isUserExists = async function (id: string) {
-  const existingUser = await Student.findOne({ id });
-  return existingUser;
-};
+  const existingUser = await Student.findOne({ id })
+  return existingUser
+}
 
 //creating a custom instance method
 // studentSchema.methods.isUserExists = async function (id: string) {
@@ -206,4 +211,4 @@ studentSchema.statics.isUserExists = async function (id: string) {
 //   return existingUser;
 // };
 
-export const Student = model<TStudent, StudentModel>('Student', studentSchema);
+export const Student = model<TStudent, StudentModel>('Student', studentSchema)
