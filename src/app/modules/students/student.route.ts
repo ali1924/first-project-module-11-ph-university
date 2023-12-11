@@ -1,16 +1,14 @@
-import express from 'express'
-import { StudentControllers } from './student.controller'
+import express from 'express';
+import { StudentControllers } from './student.controller';
 
-//will call controller function
-const router = express.Router()
+const router = express.Router();
 
-//create student
-router.post('/create-student', StudentControllers.createStudent)
-//get all students
-router.get('/', StudentControllers.getAllStudents)
-//get single student
-router.get('/:studentId', StudentControllers.getSingleStudent)
-//delete student
-router.delete('/:studentId', StudentControllers.deleteStudent)
+router.post('/create-student', StudentControllers.createStudent);
 
-export const StudentRoutes = router
+router.get('/:studentId', StudentControllers.getSingleStudent);
+
+router.delete('/:studentId', StudentControllers.deleteStudent);
+
+router.get('/', StudentControllers.getAllStudents);
+
+export const StudentRoutes = router;
